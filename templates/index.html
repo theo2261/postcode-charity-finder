@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Support Service Finder</title>
+</head>
+<body>
+    <h2>Find Local Support Services</h2>
+    <form method="POST">
+        <label>Postcode:</label><br>
+        <input type="text" name="postcode" required><br><br>
+
+        <label>Type of support needed:</label><br>
+        <label for="need">What kind of support do you need?</label>
+	<select name="need" id="need">
+  	{% for cat in categories %}
+    	  <option value="{{ cat }}">{{ cat }}</option>
+  	  {% endfor %}
+	</select>
+
+        <button type="submit">Find Services</button>
+    </form>
+
+    {% if results %}
+        <h3>Available Services:</h3>
+        <ul>
+            {% for service in results %}
+            <li>
+                <strong>{{ service['Name'] }}</strong><br>
+                Category: {{ service['Category'] }}<br>
+                Address: {{ service['Address'] }}<br>
+                Phone: {{ service['Phone'] }}<br>
+                Website: <a href="http://{{ service['Website'] }}" target="_blank">{{ service['Website'] }}</a><br><br>
+            </li>
+            {% endfor %}
+        </ul>
+    {% elif request.method == "POST" %}
+        <p>No services found in your area for that need.</p>
+    {% endif %}
+</body>
+</html>
