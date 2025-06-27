@@ -1,47 +1,96 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Postcode Charity Finder</title>
+    <meta charset="UTF-8" />
+    <title>Community Service Finder</title>
     <style>
-        body { font-family: Arial, sans-serif; padding: 20px; }
-        .service { border: 1px solid #ccc; padding: 15px; margin-bottom: 10px; border-radius: 8px; }
-        .local { background-color: #e6f7ff; }
-        .nationwide { background-color: #fffbe6; }
-        h2 { margin-top: 0; }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px auto;
+            max-width: 900px;
+            background: #f9f9f9;
+            color: #333;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        header img {
+            max-height: 80px;
+            margin-bottom: 10px;
+        }
+        h1 {
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        form {
+            margin-bottom: 30px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        input, select, button {
+            padding: 10px;
+            font-size: 16px;
+        }
+        .service {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .service h2 {
+            margin: 0 0 10px 0;
+            color: #005eb8;
+        }
+        .service p {
+            margin: 3px 0;
+        }
+        a {
+            color: #0072ce;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
-    <h1>Postcode Charity Finder</h1>
-    <form method="POST">
-        <label for="postcode">Postcode:</label>
-        <input type="text" id="postcode" name="postcode" required><br><br>
+    <header>
+        <img src="{{ url_for('static', filename='leeds_community_nhs_trust_logo.png') }}" alt="Leeds Community NHS Trust Logo" />
+        <h1>Community Service Finder</h1>
+    </header>
 
-        <label for="need">Category:</label>
-        <select name="need" id="need">
-            <option value="">All categories</option>
+    <form method="post">
+        <input type="text" name="postcode" placeholder="Enter your postcode" required />
+        <select name="need">
+            <option value="">-- Select a service category (or leave blank) --</option>
             {% for category in categories %}
                 <option value="{{ category|lower }}">{{ category }}</option>
             {% endfor %}
-        </select><br><br>
-
+        </select>
         <button type="submit">Search</button>
     </form>
 
-    <hr>
-
     {% if results %}
-        <h2>Results:</h2>
         {% for service in results %}
-            <div class="service {% if service.is_nationwide %}nationwide{% else %}local{% endif %}">
-                <h3>{{ service.name }}</h3>
-                <p><strong>Categories:</strong> {{ service.categories }}</p>
-                <p><strong>Website:</strong> <a href="{{ service.website }}" target="_blank">{{ service.website }}</a></p>
-                <p><strong>Phone:</strong> {{ service.phone }}</p>
-                <p><em>{{ "Nationwide service" if service.is_nationwide else "Available in your area" }}</em></p>
+            <div class="service">
+                <h2>{{ service['Name'] or "Unnamed Service" }}</h2>
+                <p><strong>Categories:</strong> {{ service['Categories'] }}</p>
+                <p><strong>Website:</strong>
+                    {% if service['Website'] %}
+                        <a href="{{ service['Website'] }}" target="_blank" rel="noopener">{{ service['Website'] }}</a>
+                    {% else %}
+                        Not available
+                    {% endif %}
+                </p>
+                <p><strong>Phone:</strong> {{ service['Phone'] or "Not available" }}</p>
             </div>
         {% endfor %}
-    {% elif request.method == "POST" %}
-        <p>No matching services found.</p>
+    {% else %}
+        <p>No services found matching your criteria.</p>
     {% endif %}
 </body>
 </html>
