@@ -47,7 +47,9 @@ def index():
                     "name": row.get("Service Name", "Unnamed Service"),
                     "categories": service_categories,
                     "website": row.get("Website", ""),
-                    "phone": row.get("Phone Number", "Not available")
+                    "phone": row.get("Phone Number", "Not available"),
+                    "membership": row.get("Membership", ""),
+                    "notes": row.get("Notes", "")
                 })
 
     return render_template("index.html", results=results, categories=sorted_categories)
