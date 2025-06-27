@@ -87,6 +87,7 @@
                     {% endif %}
                 </p>
                 <p><strong>Phone:</strong> {{ service['Phone Number'] or "Not available" }}</p>
+		<p><strong>Notes:</strong> {{ service['Notes']}}</p>
             </div>
         {% endfor %}
     {% else %}
