@@ -1,28 +1,32 @@
 from flask import Flask, request, render_template
 import pandas as pd
+import os
 
 app = Flask(__name__)
 
 # Load and clean the CSV
-services = pd.read_csv("services.csv")
-services.columns = services.columns.str.strip()  # Remove extra spaces in headers
-services.fillna("", inplace=True)  # Replace NaN with empty strings
+try:
+    services = pd.read_csv("services.csv")
+    services.columns = services.columns.str.strip()
+    services.fillna("", inplace=True)
+except Exception as e:
+    services = pd.DataFrame()
+    print("Error loading CSV:", e)
 
 @app.route("/", methods=["GET", "POST"])
 def index():
     results = []
 
-    # Extract unique, clean category names for the dropdown
     all_categories = set()
-    for cats in services['Categories']:
-        for cat in cats.split(","):
-            cat = cat.strip()
-            if cat:
-                all_categories.add(cat)
+    if not services.empty:
+        for cats in services['Categories']:
+            for cat in cats.split(","):
+                cat = cat.strip()
+                if cat:
+                    all_categories.add(cat)
     sorted_categories = sorted(all_categories)
 
-    if request.method == "POST":
-        # Get user input
+    if request.method == "POST" and not services.empty:
         user_postcode = request.form.get("postcode", "").upper().strip()
         user_need = request.form.get("need", "").lower().strip()
 
@@ -43,5 +47,6 @@ def index():
 
     return render_template("index.html", results=results, categories=sorted_categories)
 
-if __name__ == "__main__":
-    app.run(debug=True)
+# No debug=True for production
+if __name__ != "__main__":
+    application = app  # For Render or WSGI servers
