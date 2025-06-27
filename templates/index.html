@@ -77,7 +77,7 @@
     {% if results %}
         {% for service in results %}
             <div class="service">
-                <h2>{{ service['Name'] or "Unnamed Service" }}</h2>
+                <h2>{{ service['Service Name'] or "Unnamed Service" }}</h2>
                 <p><strong>Categories:</strong> {{ service['Categories'] }}</p>
                 <p><strong>Website:</strong>
                     {% if service['Website'] %}
@@ -86,7 +86,7 @@
                         Not available
                     {% endif %}
                 </p>
-                <p><strong>Phone:</strong> {{ service['Phone'] or "Not available" }}</p>
+                <p><strong>Phone:</strong> {{ service['Phone Number'] or "Not available" }}</p>
             </div>
         {% endfor %}
     {% else %}
