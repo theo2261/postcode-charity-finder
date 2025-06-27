@@ -43,10 +43,16 @@
       <ul class="list-group">
         {% for row in results %}
           <li class="list-group-item">
-            <strong>{{ row['Service Name'] }}</strong><br>
-            {{ row['Description'] }}<br>
-            <em>Website:</em> <a href="{{ row['Website'] }}" target="_blank">{{ row['Website'] }}</a>
-          </li>
+  	    <strong>{{ row.name }}</strong><br>
+  	    <em>Categories:</em> {{ row.categories | join(", ") }}<br>
+  	    <em>Website:</em>
+  	    {% if row.website %}
+    	      <a href="{{ row.website }}" target="_blank">{{ row.website }}</a><br>
+  	    {% else %}
+    	      Not available<br>
+  	{% endif %}
+  	<em>Phone:</em> {{ row.phone }}
+      </li>
         {% endfor %}
       </ul>
     {% elif request.method == 'POST' %}

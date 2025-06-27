@@ -43,7 +43,12 @@ def index():
             ]
 
             if user_need in service_categories and any(user_postcode.startswith(area) for area in served_areas):
-                results.append(row)
+                results.append({
+                    "name": row.get("Service Name", "Unnamed Service"),
+                    "categories": service_categories,
+                    "website": row.get("Website", ""),
+                    "phone": row.get("Phone Number", "Not available")
+                })
 
     return render_template("index.html", results=results, categories=sorted_categories)
 
