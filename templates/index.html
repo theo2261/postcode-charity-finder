@@ -40,6 +40,7 @@
             border-radius: 6px;
             margin-bottom: 15px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: relative;
         }
         .service h2 {
             margin: 0 0 10px 0;
@@ -55,6 +56,21 @@
         a:hover {
             text-decoration: underline;
         }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+            position: absolute;
+            top: 15px;
+            right: 20px;
+        }
+        .local { background-color: #2e8b57; }       /* Green */
+        .leedswide { background-color: #1e90ff; }   /* Blue */
+        .nationwide { background-color: #ff8c00; }  /* Orange */
     </style>
 </head>
 <body>
@@ -77,18 +93,19 @@
     {% if results %}
         {% for service in results %}
             <div class="service">
-                <h2>{{ service['Service Name'] or "Unnamed Service" }}</h2>
-                <p><strong>Categories:</strong> {{ service['Categories'] }}</p>
+                <span class="badge {{ service.type|lower }}">{{ service.type }}</span>
+                <h2>{{ service.data['Service Name'] or "Unnamed Service" }}</h2>
+                <p><strong>Categories:</strong> {{ service.data['Categories'] }}</p>
                 <p><strong>Website:</strong>
-                    {% if service['Website'] %}
-                        <a href="{{ service['Website'] }}" target="_blank" rel="noopener">{{ service['Website'] }}</a>
+                    {% if service.data['Website'] %}
+                        <a href="{{ service.data['Website'] }}" target="_blank" rel="noopener">{{ service.data['Website'] }}</a>
                     {% else %}
                         Not available
                     {% endif %}
                 </p>
-                <p><strong>Phone:</strong> {{ service['Phone Number'] or "Not available" }}</p>
-		<p><strong>Notes:</strong> {{ service['Notes']}}</p>
-		<p><strong>Membership:</strong> {{ service['Membership']}}</p>
+                <p><strong>Phone:</strong> {{ service.data['Phone Number'] or "Not available" }}</p>
+                <p><strong>Notes:</strong> {{ service.data['Notes'] }}</p>
+                <p><strong>Membership:</strong> {{ service.data['Membership'] }}</p>
             </div>
         {% endfor %}
     {% else %}

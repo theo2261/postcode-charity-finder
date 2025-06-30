@@ -4,7 +4,7 @@ import pandas as pd
 app = Flask(__name__)
 
 # Replace with your published Google Sheets CSV URL
-sheet_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vStKTSyHjRxu0WAsqNvGyclnG6-p4EfZf50hRcffsFKg3Lh8zqV5Mu_Koon2Sr43HQ6nGWWXoR0VcwR/pub?output=csv"
+sheet_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQceA3AJ0IFgBXN4RtiZfradv9Mt0cr81wmGVwWS8bYz13z4Pox_Hr8nC0af_o4_-hSiDEVhxs5J18R/pub?output=csv"
 
 # Load and clean the CSV from Google Sheets
 services = pd.read_csv(sheet_url)
@@ -27,27 +27,32 @@ def index():
     if request.method == "POST":
         user_postcode = request.form.get("postcode", "").upper().strip()
         user_need = request.form.get("need", "").lower().strip()
+        is_leeds_postcode = user_postcode.startswith("LS")
 
         for _, row in services.iterrows():
             service_categories = [cat.strip().lower() for cat in row['Categories'].split(",") if cat.strip()]
             served_areas = [area.strip().upper() for area in row['Postcode Areas'].split(",") if area.strip()]
 
-            # Filter logic:
-            # Show all if no category selected
             category_match = (not user_need) or (user_need in service_categories)
-            
-            # Prioritize postcode-specific, then nationwide
-            postcode_specific = any(user_postcode.startswith(area) for area in served_areas if area != "NATIONWIDE")
-            nationwide = "NATIONWIDE" in served_areas
 
-            if category_match and (postcode_specific or nationwide):
-                results.append((postcode_specific, row))
+            # Match type
+            service_type = None
+            if any(user_postcode.startswith(area) for area in served_areas if area not in ("LEEDSWIDE", "NATIONWIDE")):
+                service_type = "Local"
+            elif "LEEDSWIDE" in served_areas and is_leeds_postcode:
+                service_type = "Leedswide"
+            elif "NATIONWIDE" in served_areas:
+                service_type = "Nationwide"
 
-        # Sort so postcode-specific appear first
-        results.sort(key=lambda x: not x[0])
+            if category_match and service_type:
+                results.append((service_type, row))
 
-        # Strip out the boolean used for sorting, keep only rows
-        results = [r[1] for r in results]
+        # Sort order: Local > Leedswide > Nationwide
+        type_order = {"Local": 0, "Leedswide": 1, "Nationwide": 2}
+        results.sort(key=lambda x: type_order.get(x[0], 3))
+
+        # Format for template
+        results = [{"type": r[0], "data": r[1]} for r in results]
 
     return render_template("index.html", results=results, categories=sorted_categories)
 
