@@ -4,7 +4,7 @@ import pandas as pd
 app = Flask(__name__)
 
 # Replace with your published Google Sheets CSV URL
-sheet_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTz949aVVXPmXivkEZwoBux664NHG8K9GCBOKdb5yy0ygF1MHcdT8F8s8Zj8z1_N0NfsHAXARyfazzE/pub?output=csv"
+sheet_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSmZzCBwLuZtO2nO62H9qd8NBdOWhNH0Ty5DQcbMEYnCi9FtmsLDStq-3luTIg3GxySauAoTxow2DVO/pub?output=csv"
 
 # Load and clean the CSV from Google Sheets
 services = pd.read_csv(sheet_url)
