@@ -1,21 +1,57 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, redirect, url_for, flash
+from flask_login import LoginManager, login_user, login_required, logout_user, UserMixin, current_user
 import pandas as pd
 
 app = Flask(__name__)
+app.secret_key = 'your_secret_key_here'  # Replace with a secure random string
 
-# Replace with your published Google Sheets CSV URL
-sheet_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR2HbWb7emial0EyMnkJx_MCV82HF3I3FVVBq1AL_yYshUlSuelmlMk1ZlF5ibZ57me5W4qJh2AukF4/pub?output=csv"
+# Setup Flask-Login
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = "login"
+
+# Hardcoded user
+class User(UserMixin):
+    def __init__(self, id):
+        self.id = id
+
+# Password constant
+PASSWORD = "PinkBananas34"
+USERNAME = "admin"
+
+# User loader
+@login_manager.user_loader
+def load_user(user_id):
+    return User(user_id)
 
 # Load and clean the CSV from Google Sheets
+sheet_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR2HbWb7emial0EyMnkJx_MCV82HF3I3FVVBq1AL_yYshUlSuelmlMk1ZlF5ibZ57me5W4qJh2AukF4/pub?output=csv"
 services = pd.read_csv(sheet_url)
-services.columns = services.columns.str.strip()  # Remove extra spaces in headers
-services.fillna("", inplace=True)  # Replace NaN with empty strings
+services.columns = services.columns.str.strip()
+services.fillna("", inplace=True)
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        password = request.form.get("password", "")
+        if password == PASSWORD:
+            user = User(USERNAME)
+            login_user(user)
+            return redirect(url_for("index"))
+        else:
+            flash("Incorrect password. Try again.")
+    return render_template("login.html")
+
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for("login"))
 
 @app.route("/", methods=["GET", "POST"])
+@login_required
 def index():
     results = []
-
-    # Extract unique, clean category names for the dropdown
     all_categories = set()
     for cats in services['Categories']:
         for cat in cats.split(","):
@@ -32,10 +68,8 @@ def index():
         for _, row in services.iterrows():
             service_categories = [cat.strip().lower() for cat in row['Categories'].split(",") if cat.strip()]
             served_areas = [area.strip().upper() for area in row['Postcode Areas'].split(",") if area.strip()]
-
             category_match = (not user_need) or (user_need in service_categories)
 
-            # Match type
             service_type = None
             if any(user_postcode.startswith(area) for area in served_areas if area not in ("LEEDSWIDE", "NATIONWIDE")):
                 service_type = "Local"
@@ -47,11 +81,8 @@ def index():
             if category_match and service_type:
                 results.append((service_type, row))
 
-        # Sort order: Local > Leedswide > Nationwide
         type_order = {"Local": 0, "Leedswide": 1, "Nationwide": 2}
         results.sort(key=lambda x: type_order.get(x[0], 3))
-
-        # Format for template
         results = [{"type": r[0], "data": r[1]} for r in results]
 
     return render_template("index.html", results=results, categories=sorted_categories)
