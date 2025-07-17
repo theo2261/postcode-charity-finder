@@ -15,10 +15,6 @@
             text-align: center;
             margin-bottom: 40px;
         }
-        header img {
-            max-height: 80px;
-            margin-bottom: 10px;
-        }
         h1 {
             font-weight: 700;
             margin-bottom: 10px;
@@ -75,9 +71,10 @@
 </head>
 <body>
     <header>
-        <img src="{{ url_for('static', filename='leeds_community_nhs_trust_logo.png') }}" alt="Leeds Community NHS Trust Logo" />
         <h1>Community Service Finder</h1>
-	<p style="margin-top: 5px;">Some organisations may offer services not included here, to find all local services in your area, simply input your postcode area and leave the category section blank</p>
+        <p style="margin-top: 5px;">
+            <strong>DISCLAIMER:</strong> We do not endorse any of these organisations, and some of the data provided may change over time. Please check yourself via the company websites or phone number to check what services the organisations you are interested in provide.
+        </p>
     </header>
 
     <form method="post">
