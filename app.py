@@ -24,12 +24,6 @@ USERNAME = "admin"
 def load_user(user_id):
     return User(user_id)
 
-# Load and clean the CSV from Google Sheets
-sheet_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR2HbWb7emial0EyMnkJx_MCV82HF3I3FVVBq1AL_yYshUlSuelmlMk1ZlF5ibZ57me5W4qJh2AukF4/pub?output=csv"
-services = pd.read_csv(sheet_url)
-services.columns = services.columns.str.strip()
-services.fillna("", inplace=True)
-
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -51,6 +45,12 @@ def logout():
 @app.route("/", methods=["GET", "POST"])
 @login_required
 def index():
+    # Load live data from Google Sheets
+    sheet_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR2HbWb7emial0EyMnkJx_MCV82HF3I3FVVBq1AL_yYshUlSuelmlMk1ZlF5ibZ57me5W4qJh2AukF4/pub?output=csv"
+    services = pd.read_csv(sheet_url)
+    services.columns = services.columns.str.strip()
+    services.fillna("", inplace=True)
+
     results = []
     all_categories = set()
     for cats in services['Categories']:
